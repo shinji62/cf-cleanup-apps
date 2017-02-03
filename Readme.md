@@ -8,7 +8,7 @@ There is already some application like autosleeping but I think for small usage 
 
 I think that like development environment need to be alive, meaning application have to be push often, so that's why I decided to create this simple application.
 
-So **Updated** mean application which have been push or restage.
+So **Updated** mean application which have been push, application source code updated.
 
 ```
 ./cf-cleanup-apps --api-endpoint=https://api.local.pcfdev.io --skip-ssl-validation --user=admin --password=admin
