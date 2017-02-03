@@ -1,0 +1,15 @@
+applications:
+- name: cf-cleanup-apps
+  memory: 128M
+  disk_quota: 512M
+  no-route: true
+  no-hostname: true
+  instances: 0
+  buildpack: go_buildpack
+  stack: cflinuxfs2
+  env:
+    USER: admin
+    PASSWORD: admin
+    SKIP_SSL_VALIDATION: true
+    PCF_DISABLE_CLEANUP: true
+    DRY_RUN: false
