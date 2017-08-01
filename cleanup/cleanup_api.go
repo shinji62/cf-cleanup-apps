@@ -20,6 +20,7 @@ type CleanupCf struct {
 	dateExpired      time.Duration
 	excludeSystemOrg bool
 	excludedOrgs     map[string]int
+	includedOrgs     string
 }
 
 func NewCleanupCf(cfC *cfclient.Client, since time.Duration, excludeSystem bool) Cleanup {
@@ -56,7 +57,7 @@ func (cl *CleanupCf) StopApp(expiredApps *[]App) error {
 		if res.StatusCode != 201 {
 			logging.LogError(res.Status+" when calling cf api", res.StatusCode)
 		}
-		logging.LogStd(fmt.Sprintf("Stopping Application %s in Org: %s Space: %s Last Updated: %s", app.Name, app.OrgName, app.SpaceName, app.PackageUpdated), true)
+		logging.LogStd(fmt.Sprintf("Stopping Application %s in Org: %s Space: %s Last Updated: %s", app.Name, app.OrgName, app.SpaceName, app.PackageUpdatedAt), true)
 		//Avoid Killing CF API let's put some sleep
 		time.Sleep(2 * time.Second)
 	}
@@ -68,8 +69,36 @@ func (cl *CleanupCf) getAppsFromApi() ([]cfclient.App, error) {
 	return cl.cf.ListApps()
 }
 
+func (cl *CleanupCf) getAppsFromApiByOrg() ([]cfclient.App, error) {
+	orgs, err := cl.getOrgGuidByNames()
+	if err != nil {
+		return []cfclient.App{}, err
+	}
+	var orgGuid string
+	for _, org := range orgs {
+		orgGuid += "," + org.Guid
+	}
+	return cl.cf.ListAppsByQuery(map[string][]string{"q": []string{"organization_guid IN " + orgGuid}})
+}
+
 func (cl *CleanupCf) ListExpiredAppsFromApi() (*[]App, error) {
 	aApi, err := cl.getAppsFromApi()
+	//TODO FIX THAT!!!
+	if err != nil {
+		return &[]App{}, nil
+	}
+	return cl.ListExpiredApps(&aApi), err
+}
+
+//Return Org Guid by Name
+func (cl *CleanupCf) getOrgGuidByNames() ([]cfclient.Org, error) {
+	orgs, err := cl.cf.ListOrgsByQuery(map[string][]string{"q": []string{"name IN " + cl.includedOrgs}})
+	return orgs, err
+
+}
+
+func (cl *CleanupCf) ListExpiredAppsFromApiByOrg() (*[]App, error) {
+	aApi, err := cl.getAppsFromApiByOrg()
 	//TODO FIX THAT!!!
 	// if err != nil {
 	// 	return *[]App, nil
@@ -83,7 +112,7 @@ func (cl *CleanupCf) ListExpiredApps(listapps *[]cfclient.App) *[]App {
 		if !cl.isStarted(app.State) || cl.isOptOut(app.Environment) || cl.isSystemOrg(app.SpaceData.Entity.OrgData.Entity.Name) {
 			continue
 		}
-		if !cl.isExpired(app.PackageUpdated) {
+		if !cl.isExpired(app.PackageUpdatedAt) {
 			continue
 		}
 
@@ -98,7 +127,7 @@ func (cl *CleanupCf) ListExpiredApps(listapps *[]cfclient.App) *[]App {
 			app.SpaceData.Entity.Guid,
 			app.SpaceData.Entity.OrgData.Entity.Name,
 			app.SpaceData.Entity.OrgData.Entity.Guid,
-			app.PackageUpdated,
+			app.PackageUpdatedAt,
 		})
 	}
 	return &apps
@@ -119,14 +148,22 @@ func (cl *CleanupCf) isOptOut(envVar map[string]interface{}) bool {
 	return false
 }
 
-func (cl *CleanupCf) SetExcludedOrgs(excludeOrg string) {
-	excludedOrg := map[string]int{}
-	for _, kvPair := range strings.Split(excludeOrg, ",") {
+func CleanupOrgs(orgName string) map[string]int {
+	orgNamed := map[string]int{}
+	for _, kvPair := range strings.Split(orgName, ",") {
 		if kvPair != "" {
-			excludedOrg[strings.ToLower(strings.TrimSpace(kvPair))] = 1
+			orgNamed[strings.ToLower(strings.TrimSpace(kvPair))] = 1
 		}
 	}
-	cl.excludedOrgs = excludedOrg
+	return orgNamed
+}
+
+func (cl *CleanupCf) SetExcludedOrgs(excludeOrg string) {
+	cl.excludedOrgs = CleanupOrgs(excludeOrg)
+}
+
+func (cl *CleanupCf) SetIncludedOrgs(includeOrg string) {
+	cl.includedOrgs = strings.ToLower(strings.TrimSpace(includeOrg))
 }
 
 func (cl *CleanupCf) GetExcludedOrgs() map[string]int {

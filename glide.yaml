@@ -1,0 +1,38 @@
+package: github.com/shinji62/cf-cleanup-apps
+import:
+- package: github.com/alecthomas/template
+  version: a0175ee3bccc567396460bf5acd36800cb10c49c
+  subpackages:
+  - parse
+- package: github.com/alecthomas/units
+  version: 2efee857e7cfd4f3d0138cc3cbb1b4966962b93a
+- package: github.com/cloudfoundry-community/go-cfclient
+  version: 8035404db0b663d6ea9aee965dbd28c016bd250a
+- package: github.com/mailru/easyjson
+  version: db88438fcabc2ff8e707a550195d3ebfc6709e9a
+  subpackages:
+  - buffer
+  - jlexer
+  - jwriter
+- package: golang.org/x/net
+  version: f2499483f923065a842d38eb4c7f1927e6fc6e6d
+  subpackages:
+  - context
+- package: golang.org/x/oauth2
+  version: 314dd2c0bf3ebd592ec0d20847d27e79d0dbe8dd
+  subpackages:
+  - clientcredentials
+  - internal
+- package: golang.org/x/sys
+  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
+  subpackages:
+  - unix
+- package: gopkg.in/alecthomas/kingpin.v2
+  version: ~2.2.3
+testImport:
+- package: github.com/onsi/ginkgo
+  version: ~1.4.0
+- package: github.com/onsi/gomega
+  version: ~1.2.0
+  subpackages:
+  - gexec

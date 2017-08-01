@@ -12,21 +12,21 @@ import (
 )
 
 var default_App_time_3h = cfclient.App{
-	Guid:           "123",
-	Name:           "test app",
-	SpaceURL:       "spaceurl1",
-	State:          "STARTED",
-	PackageUpdated: fmt.Sprintf("%s", time.Now().Add(-1*(3*time.Hour)).Format(time.RFC3339)),
+	Guid:             "123",
+	Name:             "test app",
+	SpaceURL:         "spaceurl1",
+	State:            "STARTED",
+	PackageUpdatedAt: fmt.Sprintf("%s", time.Now().Add(-1*(3*time.Hour)).Format(time.RFC3339)),
 }
 
 var default_exired_app = App{
-	Name:           "App_expired",
-	Guid:           "uid-1",
-	SpaceName:      "SpaceNameOne",
-	SpaceGuid:      "suid-1",
-	OrgName:        "Org-Name",
-	OrgGuid:        "uid-1",
-	PackageUpdated: "date",
+	Name:             "App_expired",
+	Guid:             "uid-1",
+	SpaceName:        "SpaceNameOne",
+	SpaceGuid:        "suid-1",
+	OrgName:          "Org-Name",
+	OrgGuid:          "uid-1",
+	PackageUpdatedAt: "date",
 }
 
 var _ = Describe("Cleanup", func() {
@@ -69,7 +69,7 @@ var _ = Describe("Cleanup", func() {
 		It("Should not report not expired app", func() {
 			App_time_1h := default_App_time_3h
 			App_time_1h.Name = "App_time_1h"
-			App_time_1h.PackageUpdated = fmt.Sprintf("%s", time.Now().Add(-1*(1*time.Hour)).Format(time.RFC3339))
+			App_time_1h.PackageUpdatedAt = fmt.Sprintf("%s", time.Now().Add(-1*(1*time.Hour)).Format(time.RFC3339))
 			apps = []cfclient.App{}
 			apps = append(apps, App_time_1h)
 			listapp := clean.ListExpiredApps(&apps)

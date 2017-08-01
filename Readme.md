@@ -40,6 +40,7 @@ Flags:
   --app-expired-since=720h       CloudController Polling time in hour
   --exclude-system-org           Exclude application in System org to be stopped (Most likely PCF Core App)
   --exclude-orgs=""              Org you want to exclude from cleaning : '--exclude-orgs=myorg1,myorg
+  --include-orgs=""              Org you want to include from cleaning : '--include-orgs=myorg1,myorg2
 ```
 
 # Authentification definition
