@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -78,7 +79,11 @@ func (cl *CleanupCf) getAppsFromApiByOrg() ([]cfclient.App, error) {
 	for _, org := range orgs {
 		orgGuid += "," + org.Guid
 	}
-	return cl.cf.ListAppsByQuery(map[string][]string{"q": []string{"organization_guid IN " + orgGuid}})
+
+	q := url.Values{}
+	q.Set("q", "organization_guid IN "+orgGuid)
+	q.Set("inline-relations-depth", "2")
+	return cl.cf.ListAppsByQuery(q)
 }
 
 func (cl *CleanupCf) ListExpiredAppsFromApi() (*[]App, error) {
